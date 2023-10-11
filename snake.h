@@ -1,20 +1,47 @@
-#define Ydim 60
+#define Ydim 30
 #define Xdim 30
 #define SPACE 32
-#define SnakeLen 1
+#define FOOD 184
+#define SNAKELEN 10
+#define SNAKELENSTART 3
+#define SNAKEHEAD 220
+#define SNAKEBODY 220
+#define PLAYGROUND 35
 
 struct SNAKE
 {
     int ActualLeng;
-    int PosX[SnakeLen];
-    int PosY[SnakeLen];
+    int PosX[SNAKELEN];
+    int PosY[SNAKELEN];
     int MaxLeng;
-    char SnakeHead;
-    char SnakeBody;
+    int SnakeHead;
+    int SnakeBody;
 };
 
-void initSnake (struct SNAKE *);
-void resetPlayGround (char [Xdim][Ydim]);
-void printPlayGround (char [Xdim][Ydim]);
-void moveSnake(char [Xdim][Ydim], struct SNAKE);
-void readCommand(void);
+struct FreeCells
+{
+    int X[Xdim*Ydim];
+    int Y[Xdim*Ydim];
+    int numFree;
+};
+
+struct FRUIT
+{
+    int X;
+    int Y;
+};
+
+// define arrow key
+#define ARROW_UP 72
+#define ARROW_DOWN 80
+#define ARROW_LEFT 75
+#define ARROW_RIGHT 77
+
+bool emptyElements(int [Xdim][Ydim], struct FreeCells *);
+void genFruit(int [Xdim][Ydim], struct FreeCells, struct FRUIT *);
+void initSnake (struct SNAKE *, int[2]);
+void initPlayGround (int [Xdim][Ydim]);
+void deleteSnake (int [Xdim][Ydim], struct SNAKE); 
+void printPlayGround (int [Xdim][Ydim]);
+bool moveSnake(int [Xdim][Ydim], struct SNAKE*, int [2], bool*);
+void readCommand(int *);

@@ -2,7 +2,7 @@
 #define Xdim 30
 #define SPACE 32
 #define FOOD 184
-#define SNAKELEN 10
+#define SNAKELEN 100
 #define SNAKELENSTART 3
 #define SNAKEHEAD 220
 #define SNAKEBODY 220
@@ -41,7 +41,6 @@ bool emptyElements(int [Xdim][Ydim], struct FreeCells *);
 void genFruit(int [Xdim][Ydim], struct FreeCells, struct FRUIT *);
 void initSnake (struct SNAKE *, int[2]);
 void initPlayGround (int [Xdim][Ydim]);
-void deleteSnake (int [Xdim][Ydim], struct SNAKE); 
 void printPlayGround (int [Xdim][Ydim]);
 bool moveSnake(int [Xdim][Ydim], struct SNAKE*, int [2], bool*);
 void readCommand(int *);

@@ -36,7 +36,6 @@ int main()
             isFruit=true;
         }
         readCommand(Movement);
-        deleteSnake(PlayGround,Snake);
         collision=moveSnake(PlayGround,&Snake, Movement, &isFruit);
         printPlayGround (PlayGround);
     }
@@ -68,7 +67,7 @@ bool emptyElements(int PlayGround[Xdim][Ydim], struct FreeCells *FreeCells)
     return true;
 }
 
-void genFruit(int PlayGround[Xdim][Ydim], struct FreeCells FreeCells, struct FRUIT *Fruit)
+void genFruit(int PlayGround[Xdim][Ydim], struct FreeCells FreeCells, struct FRUIT *Fruit )
 {
     int lower = 0;
     int upper = FreeCells.numFree;
@@ -109,16 +108,9 @@ void initPlayGround (int PlayGround[Xdim][Ydim])
     }
 }
 
-void deleteSnake (int PlayGround[Xdim][Ydim], struct SNAKE Snake)
-{
-    for (int ilen=0; ilen<Snake.ActualLeng; ilen++)
-    {
-        PlayGround[Snake.PosX[ilen]][Snake.PosY[ilen]]=SPACE;
-    }
-}
-
 bool moveSnake(int PlayGround[Xdim][Ydim], struct SNAKE *Snake, int Movement[2], bool *isFruit)
 {
+    PlayGround[Snake->PosX[Snake->ActualLeng-1]][Snake->PosY[Snake->ActualLeng-1]]=SPACE;
     for (int ilen=Snake->ActualLeng-1; ilen>0; ilen--)
     {
         Snake->PosX[ilen]=Snake->PosX[ilen-1];

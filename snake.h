@@ -1,6 +1,7 @@
-#define Ydim 30
+#define Ydim 31
 #define Xdim 30
 #define SPACE 32
+#define TERMINATOR 10
 #define FOOD 184
 #define SNAKELEN 100
 #define SNAKELENSTART 3
@@ -44,3 +45,4 @@ void initPlayGround (int [Xdim][Ydim]);
 void printPlayGround (int [Xdim][Ydim]);
 bool moveSnake(int [Xdim][Ydim], struct SNAKE*, int [2], bool*);
 void readCommand(int *);
+double get_time();

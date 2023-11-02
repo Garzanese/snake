@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <conio.h>
 #include <fcntl.h>
-//#include <time.h>
+#include <windows.h>
 
 #include "snake.h"
 
@@ -15,8 +15,9 @@ int main()
 
     int PlayGround [Xdim][Ydim];
 
-    // time_t currenTime;
-    // time_t starTime;
+    //double t1=0;
+    //double t2=0;
+    //double deltaT=0;
 
     int Movement[2]={-1,0};
     bool collision = false;
@@ -37,7 +38,10 @@ int main()
         }
         readCommand(Movement);
         collision=moveSnake(PlayGround,&Snake, Movement, &isFruit);
+        //t1 = get_time();
         printPlayGround (PlayGround);
+        //t2 = get_time();
+        //deltaT=t2-t1;
     }
     return 0;
 }
@@ -80,31 +84,27 @@ void genFruit(int PlayGround[Xdim][Ydim], struct FreeCells FreeCells, struct FRU
 }
 
 void initPlayGround (int PlayGround[Xdim][Ydim])
-{ // Function to reset the PlayGround
+{   // Function to initialize the PlayGround
 
-    char val = SPACE;
-    int Hborder = PLAYGROUND;
-    int Vborder = PLAYGROUND;
-
-    for (int irow=0; irow< Xdim; ++irow)
-    {
-        for (int icol=0; icol< Ydim ; ++icol)
+    for (int irow=0; irow<Xdim; ++irow)
+    {   // Initialize all element to SPACE
+        for (int icol=0; icol<= Ydim ; ++icol)
         {
-            PlayGround[irow][icol]=val;
+            PlayGround[irow][icol]=SPACE;
         }
     }
-    // Create horizontal borders
-    for (int icol=0; icol<Ydim; icol++)
-    {
-        PlayGround[0][icol]=Hborder;
-        PlayGround[Xdim-1][icol]=Hborder;
+
+    for (int icol=0; icol<Ydim-1; icol++)
+    {   // Create horizontal borders
+        PlayGround[0][icol]     =PLAYGROUND;
+        PlayGround[Xdim-1][icol]=PLAYGROUND;
     }
 
-    // Create vertical borders
-    for (int irow=1; irow<Xdim-1; irow++)
-    {
-        PlayGround[irow][0]=Vborder;
-        PlayGround[irow][Ydim-1]=Vborder;
+    for (int irow=0; irow<Xdim-1; irow++)
+    {    // Create vertical borders + string terminator
+        PlayGround[irow][0]     =PLAYGROUND;
+        PlayGround[irow][Ydim-2]=PLAYGROUND;
+        PlayGround[irow][Ydim-1]=TERMINATOR;
     }
 }
 
@@ -138,16 +138,9 @@ bool moveSnake(int PlayGround[Xdim][Ydim], struct SNAKE *Snake, int Movement[2],
 }
 
 void printPlayGround (int PlayGround[Xdim][Ydim])
-{
+{ // Print
     system("cls");
-    for (int irow=0; irow<Xdim; irow++)
-    {
-        for (int icol=0; icol<Ydim; icol++)
-        {
-            printf("%c", PlayGround[irow][icol]);
-        }
-        printf("\n");
-    }
+    fwrite(PlayGround, sizeof(PlayGround[0]),Xdim,stdout);
 }
 
 void initSnake (struct SNAKE *Snake, int Movement[2])
@@ -222,4 +215,12 @@ void readCommand(int *Movement)
                 break;
         }
     }
+}
+
+double get_time()
+{
+    LARGE_INTEGER t, f;
+    QueryPerformanceCounter(&t);
+    QueryPerformanceFrequency(&f);
+    return (double)t.QuadPart/(double)f.QuadPart;
 }

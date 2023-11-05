@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <conio.h>
-#include <fcntl.h>
+#include <time.h>
 #include <windows.h>
 
 #include "snake.h"
+
 
 int main()
 {
@@ -15,14 +16,12 @@ int main()
 
     int PlayGround [Xdim][Ydim];
 
-    //double t1=0;
-    //double t2=0;
-    //double deltaT=0;
-
     int Movement[2]={-1,0};
     bool collision = false;
     bool isFruit = false;
     bool isEmpty = true;
+
+    seedRandom();
 
     initSnake (&Snake, Movement);
     initPlayGround  (PlayGround);
@@ -38,12 +37,19 @@ int main()
         }
         readCommand(Movement);
         collision=moveSnake(PlayGround,&Snake, Movement, &isFruit);
-        //t1 = get_time();
         printPlayGround (PlayGround);
-        //t2 = get_time();
-        //deltaT=t2-t1;
     }
     return 0;
+}
+
+void seedRandom()
+{
+    srand((unsigned)time(NULL));
+}
+
+int getRandomNumber(int min, int max)
+{
+    return min + rand() % (max - min + 1);
 }
 
 bool emptyElements(int PlayGround[Xdim][Ydim], struct FreeCells *FreeCells)
@@ -75,7 +81,7 @@ void genFruit(int PlayGround[Xdim][Ydim], struct FreeCells FreeCells, struct FRU
 {
     int lower = 0;
     int upper = FreeCells.numFree;
-    int num = (rand() % (upper - lower + 1)) + lower; 
+    int num = getRandomNumber(lower, upper); 
 
     Fruit->X=FreeCells.X[num];
     Fruit->Y=FreeCells.Y[num];
@@ -139,7 +145,7 @@ bool moveSnake(int PlayGround[Xdim][Ydim], struct SNAKE *Snake, int Movement[2],
 
 void printPlayGround (int PlayGround[Xdim][Ydim])
 { // Print
-    system("cls");
+    clearConsole();
     fwrite(PlayGround, sizeof(PlayGround[0]),Xdim,stdout);
 }
 
@@ -176,51 +182,44 @@ void readCommand(int *Movement)
             case ARROW_UP:
                 xMov=-1;
                 yMov=0;
-                if (Movement[0]!=-xMov && Movement[1]!=-yMov)
-                {
-                    Movement[0]=xMov;
-                    Movement[1]=yMov;   
-                }
                 break;
             case ARROW_DOWN:
                 xMov=1;
                 yMov=0;
                 if (Movement[0]!=-xMov && Movement[1]!=-yMov)
-                {
-                    Movement[0]=xMov;
-                    Movement[1]=yMov;   
-                }
                 break;
             case ARROW_LEFT:
                 // counter-clockwise rotation
                 xMov=0;
                 yMov=-1;
-                if (Movement[0]!=-xMov && Movement[1]!=-yMov)
-                {
-                    Movement[0]=xMov;
-                    Movement[1]=yMov;   
-                }
                 break;
             case ARROW_RIGHT:
                 xMov=0;
                 yMov=1;
-                if (Movement[0]!=-xMov && Movement[1]!=-yMov)
-                {
-                    Movement[0]=xMov;
-                    Movement[1]=yMov;   
-                }
                 break;
             default:
                 //code her...
                 break;
         }
+        if (Movement[0]!=-xMov && Movement[1]!=-yMov)
+        {
+           Movement[0]=xMov;
+          Movement[1]=yMov;   
+        }
     }
 }
 
-double get_time()
-{
-    LARGE_INTEGER t, f;
-    QueryPerformanceCounter(&t);
-    QueryPerformanceFrequency(&f);
-    return (double)t.QuadPart/(double)f.QuadPart;
+void clearConsole(void)
+{// by Default (GPT 3.5)
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD coordScreen = {0, 0};
+    DWORD cCharsWritten;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    DWORD dwConSize;
+
+    GetConsoleScreenBufferInfo(hConsole, &csbi);
+    dwConSize = (DWORD)(csbi.dwSize.X) * (DWORD)(csbi.dwSize.Y);
+    FillConsoleOutputCharacter(hConsole, ' ', dwConSize, coordScreen, &cCharsWritten);
+    SetConsoleCursorPosition(hConsole, coordScreen);
+
 }

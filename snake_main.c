@@ -16,29 +16,58 @@ int main()
 
     int PlayGround [Xdim][Ydim];
 
-    int Movement[2]={-1,0};
-    bool collision = false;
-    bool isFruit = false;
-    bool isEmpty = true;
+    int Movement[2];
+    bool collision;
+    bool isFruit;
+    bool isEmpty;
+    bool isContinue = true;
+
+    int msec    = 0;
+    int trigger = 100; /* ms */
+    time_t difference_t, before_t;
 
     seedRandom();
 
-    initSnake (&Snake, Movement);
-    initPlayGround  (PlayGround);
-    printPlayGround (PlayGround);
-
-    while(!collision && isEmpty)
+    while (isContinue)
     {
-        if (!isFruit)
-        {
-            isEmpty= emptyElements(PlayGround, &FreeCells);
-            genFruit(PlayGround, FreeCells, &Fruit);
-            isFruit=true;
-        }
-        readCommand(Movement);
-        collision=moveSnake(PlayGround,&Snake, Movement, &isFruit);
+        Movement[0]=-1;
+        Movement[1]=0;
+        collision = false;
+        isFruit = false;
+        isEmpty = true;
+
+        initSnake (&Snake, Movement);
+        initPlayGround  (PlayGround);
         printPlayGround (PlayGround);
+
+        before_t=clock();
+        while(!collision && isEmpty)
+        {
+            if (!isFruit)
+            {
+                isEmpty= emptyElements(PlayGround, &FreeCells);
+                genFruit(PlayGround, FreeCells, &Fruit);
+                isFruit=true;
+            }
+            readCommand(Movement);
+            difference_t = clock()- before_t;
+            msec = difference_t * 1000 / CLOCKS_PER_SEC;
+
+            if (msec>trigger)
+            {
+                collision=moveSnake(PlayGround,&Snake, Movement, &isFruit);
+                before_t=clock();
+                printPlayGround (PlayGround);
+            }
+            
+
+        }
+
+        isContinue=askRetry();
+        clearConsole();
     }
+
+
     return 0;
 }
 
@@ -92,15 +121,15 @@ void genFruit(int PlayGround[Xdim][Ydim], struct FreeCells FreeCells, struct FRU
 void initPlayGround (int PlayGround[Xdim][Ydim])
 {   // Function to initialize the PlayGround
 
-    for (int irow=0; irow<Xdim; ++irow)
+    for (int irow=1; irow<Xdim-1; irow++)
     {   // Initialize all element to SPACE
-        for (int icol=0; icol<= Ydim ; ++icol)
+        for (int icol=1; icol< Ydim-1 ; icol++)
         {
             PlayGround[irow][icol]=SPACE;
         }
     }
 
-    for (int icol=0; icol<Ydim-1; icol++)
+    for (int icol=0; icol<Ydim; icol++)
     {   // Create horizontal borders
         PlayGround[0][icol]     =PLAYGROUND;
         PlayGround[Xdim-1][icol]=PLAYGROUND;
@@ -109,8 +138,7 @@ void initPlayGround (int PlayGround[Xdim][Ydim])
     for (int irow=0; irow<Xdim-1; irow++)
     {    // Create vertical borders + string terminator
         PlayGround[irow][0]     =PLAYGROUND;
-        PlayGround[irow][Ydim-2]=PLAYGROUND;
-        PlayGround[irow][Ydim-1]=TERMINATOR;
+        PlayGround[irow][Ydim-1]=PLAYGROUND;
     }
 }
 
@@ -145,9 +173,13 @@ bool moveSnake(int PlayGround[Xdim][Ydim], struct SNAKE *Snake, int Movement[2],
 
 void printPlayGround (int PlayGround[Xdim][Ydim])
 { // Print
-    clearConsole();
-    fwrite(PlayGround, sizeof(PlayGround[0]),Xdim,stdout);
-}
+    ResetConsole();
+    for (int irow = 0; irow < Xdim; irow++) 
+    {
+        fwrite(PlayGround[irow], sizeof(int), Ydim, stdout);
+        putchar('\n'); // Print a newline character to move to the next row
+    }
+    }
 
 void initSnake (struct SNAKE *Snake, int Movement[2])
 {// Initialize snake position, length, graphic.
@@ -209,8 +241,8 @@ void readCommand(int *Movement)
     }
 }
 
-void clearConsole(void)
-{// by Default (GPT 3.5)
+void clearConsole()
+{
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     COORD coordScreen = {0, 0};
     DWORD cCharsWritten;
@@ -218,8 +250,61 @@ void clearConsole(void)
     DWORD dwConSize;
 
     GetConsoleScreenBufferInfo(hConsole, &csbi);
-    dwConSize = (DWORD)(csbi.dwSize.X) * (DWORD)(csbi.dwSize.Y);
+    dwConSize = (DWORD) csbi.dwSize.X * (DWORD) csbi.dwSize.Y;
     FillConsoleOutputCharacter(hConsole, ' ', dwConSize, coordScreen, &cCharsWritten);
     SetConsoleCursorPosition(hConsole, coordScreen);
+}
 
+void ResetConsole(void)
+{// by Default (GPT 3.5)
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD coordScreen = {0, 0};
+
+    // Set the cursor position to the top-left corner (first line)
+    SetConsoleCursorPosition(hConsole, coordScreen);
+}
+
+bool askRetry()
+{
+
+    bool isOK 	= true;
+	bool out 	= true;
+
+    printf("\n");
+    printf("You dead");
+    printf("\n");
+
+	while (isOK)
+	{
+		char dummy;
+		printf("Do you want to play another game?");
+		printf("\n");
+		printf("y - Yes, I want to start again");
+		printf("\n");
+		printf("n - No, I prefer to go work");
+		printf("\n");
+		printf("%c",SPACE);
+		printf("\n");
+		
+		fflush(stdin);
+		scanf( "%c", &dummy);
+		
+
+		if (dummy=='y' || dummy=='n')
+		{
+			isOK=false;
+
+			if(dummy=='n')
+			{
+
+				out = false;
+			}
+		}
+		else
+		{
+			printf("The chosen symbol was not corret.");
+			printf("\n");
+		}
+	}
+	return out;
 }

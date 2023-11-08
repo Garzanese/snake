@@ -1,5 +1,5 @@
-#define Ydim 31
-#define Xdim 30
+#define Ydim 25
+#define Xdim 25
 #define SPACE 32
 #define TERMINATOR 10
 #define FOOD 184
@@ -7,7 +7,7 @@
 #define SNAKELENSTART 3
 #define SNAKEHEAD 220
 #define SNAKEBODY 220
-#define PLAYGROUND 35
+#define PLAYGROUND 43
 
 struct SNAKE
 {
@@ -48,3 +48,5 @@ void printPlayGround (int [Xdim][Ydim]);
 bool moveSnake(int [Xdim][Ydim], struct SNAKE*, int [2], bool*);
 void readCommand(int *);
 void clearConsole(void);
+void ResetConsole(void);
+bool askRetry();

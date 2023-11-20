@@ -44,7 +44,7 @@ bool emptyElements(int [Xdim][Ydim], struct FreeCells *);
 void genFruit(int [Xdim][Ydim], struct FreeCells, struct FRUIT *);
 void initSnake (struct SNAKE *, int[2]);
 void initPlayGround (int [Xdim][Ydim]);
-void printPlayGround (int [Xdim][Ydim]);
+void printPlayGround (int [Xdim][Ydim],struct SNAKE, int);
 bool moveSnake(int [Xdim][Ydim], struct SNAKE*, int [2], bool*);
 void readCommand(int *);
 void clearConsole(void);

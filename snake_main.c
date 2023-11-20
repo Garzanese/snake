@@ -22,52 +22,51 @@ int main()
     bool isEmpty;
     bool isContinue = true;
 
-    int msec    = 0;
-    int trigger = 100; /* ms */
+    int msec        = 0;
+    int trigger     = 20; /* ms */
+    int GameRefresh = 0;
     time_t difference_t, before_t;
 
     seedRandom();
 
     while (isContinue)
     {
-        Movement[0]=-1;
-        Movement[1]=0;
-        collision = false;
-        isFruit = false;
-        isEmpty = true;
+        Movement[0] = -1;
+        Movement[1] = 0;
+        collision   = false;
+        isFruit     = false;
+        isEmpty     = true;
 
         initSnake (&Snake, Movement);
         initPlayGround  (PlayGround);
-        printPlayGround (PlayGround);
+        printPlayGround (PlayGround, Snake, GameRefresh);
 
         before_t=clock();
+
         while(!collision && isEmpty)
         {
+            GameRefresh = trigger*SNAKELEN/Snake.ActualLeng;
             if (!isFruit)
             {
                 isEmpty= emptyElements(PlayGround, &FreeCells);
                 genFruit(PlayGround, FreeCells, &Fruit);
                 isFruit=true;
             }
-            readCommand(Movement);
             difference_t = clock()- before_t;
             msec = difference_t * 1000 / CLOCKS_PER_SEC;
 
-            if (msec>trigger)
+            if ((msec>GameRefresh))
             {
+                readCommand(Movement);
                 collision=moveSnake(PlayGround,&Snake, Movement, &isFruit);
+                printPlayGround (PlayGround, Snake, GameRefresh);
                 before_t=clock();
-                printPlayGround (PlayGround);
             }
-            
-
         }
 
         isContinue=askRetry();
         clearConsole();
     }
-
-
     return 0;
 }
 
@@ -171,7 +170,7 @@ bool moveSnake(int PlayGround[Xdim][Ydim], struct SNAKE *Snake, int Movement[2],
     return true;
 }
 
-void printPlayGround (int PlayGround[Xdim][Ydim])
+void printPlayGround (int PlayGround[Xdim][Ydim], struct SNAKE Snake, int GameRefresh)
 { // Print
     ResetConsole();
     for (int irow = 0; irow < Xdim; irow++) 
@@ -179,7 +178,13 @@ void printPlayGround (int PlayGround[Xdim][Ydim])
         fwrite(PlayGround[irow], sizeof(int), Ydim, stdout);
         putchar('\n'); // Print a newline character to move to the next row
     }
-    }
+    
+    putchar('\n');
+    putchar('\n');
+    printf("Total Score: %d \n" , Snake.ActualLeng-SNAKELENSTART);
+    printf("Refresh Rate: %d \n" , GameRefresh);
+
+}
 
 void initSnake (struct SNAKE *Snake, int Movement[2])
 {// Initialize snake position, length, graphic.
@@ -208,7 +213,9 @@ void readCommand(int *Movement)
     {     // If key is typed
     int key;
     key = _getch(); // Key variable get the ASCII code from _getch()
-   
+    key = _getch(); // The _getch and_getwch functions read a single character from the console without echoing the character. None of these functions can be used to read CTRL+C. 
+                    // When reading a function key or an arrow key, each function must be called twice;
+                    // the first call returns 0 or 0xE0, and the second call returns the actual key code.
     switch( key )
         {
             case ARROW_UP:
@@ -218,7 +225,6 @@ void readCommand(int *Movement)
             case ARROW_DOWN:
                 xMov=1;
                 yMov=0;
-                if (Movement[0]!=-xMov && Movement[1]!=-yMov)
                 break;
             case ARROW_LEFT:
                 // counter-clockwise rotation
@@ -235,8 +241,8 @@ void readCommand(int *Movement)
         }
         if (Movement[0]!=-xMov && Movement[1]!=-yMov)
         {
-           Movement[0]=xMov;
-          Movement[1]=yMov;   
+            Movement[0]=xMov;
+            Movement[1]=yMov;   
         }
     }
 }
@@ -270,9 +276,9 @@ bool askRetry()
     bool isOK 	= true;
 	bool out 	= true;
 
-    printf("\n");
-    printf("You dead");
-    printf("\n");
+    putchar('\n');
+    printf("You dead :(");
+    putchar('\n');
 
 	while (isOK)
 	{
@@ -306,5 +312,10 @@ bool askRetry()
 			printf("\n");
 		}
 	}
+
+    // For Armando: he likes press any key to continue
+    printf("Press Any Key to Continue\n");
+    fflush(stdin);
+	getchar();
 	return out;
 }
